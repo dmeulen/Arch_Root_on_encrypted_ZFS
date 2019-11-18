@@ -58,6 +58,7 @@ Yay is an AUR package manager like `yaourt`.
 
 ## Get and install kernel headers
 
+You might need to change the URL used below. It should be the same kernel version as the installer runs ( check with `uname -a` ).
 Still as user `nonroot`:
 
     wget https://archive.archlinux.org/packages/l/linux-headers/linux-headers-5.3.8.1-1-x86_64.pkg.tar.xz
