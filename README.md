@@ -167,3 +167,36 @@ Set locale:
 Set timezone:
 
     ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+
+Configure hostname:
+
+    # echo "<hostname>" >> /etc/hostname
+
+Add a user:
+
+    useradd -m -G wheel jdoe
+    passwd jdoe
+
+Edit sudoers file:
+
+    visudo
+
+Comment out following line:
+
+    %wheel ALL=(ALL) ALL
+
+Build and install ZFS dkms modules and ZFS utils as our newly created user:
+
+    su - jdoe
+    sudo pacman -S linux linux-headers git
+    mkdir git
+    cd git
+    git clone https://aur.archlinux.org/yay.git
+    cd yay
+    makepkg -si
+    yay -S zfs-dkms zfs-utils
+    exit
+
+Install and enable networkmanager and ssh:
+
+    pacman -S networkmanager opennssh
