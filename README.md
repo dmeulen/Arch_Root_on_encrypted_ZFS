@@ -197,7 +197,7 @@ Our filesystems will be mounted under `/mnt`.
 
     visudo
 
-Comment out following line:
+Uncomment out following line:
 
     %wheel ALL=(ALL) ALL
 
