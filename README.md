@@ -135,3 +135,35 @@ Mount the `/boot/` filesystem in our installation:
 Install the base system:
 
     pacstrap -i /mnt base base-devel
+
+
+### Configure system
+
+Generate an fstab:
+
+    genfstab -U -p /mnt | grep boot >> /mnt/etc/fstab
+    echo "/dev/zvol/zroot/swap none swap discard 0 0" >> /mnt/etc/fstab
+
+Chroot into our Arch installation
+
+    arch-chroot /mnt /bin/bash
+
+Install our favorite editor:
+
+    pacman -S vim
+
+Set locale:
+
+    # vim /etc/locale.gen
+    --------------------
+    Uncomment en_US.UTF-8 UTF-8
+
+    # locale-gen
+
+    # vim /etc/locale.conf
+    ---------------------
+    LANG=en_US.UTF-8
+
+Set timezone:
+
+    ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
