@@ -4,4 +4,15 @@ Sevaral documents can be found on the Internet about how to install Arch linux w
 
 This document describes how to install Arch Linux with root on ZFS on LUKS without the need of using archzfs.
 
+## Prepare for installation
 
+Just use the regular media to boot the installation media. Consult the Arch wiki for more info on that.
+
+## Prepare install environment
+
+Some of the steps require the use of a non-root user. So we'll need to create a temporary non-root user.
+The default disk space is not sufficient to store all of the needed packages and tools, so we also need to increase the available disk space during the install.
+
+### Increase disk space
+
+    mount -o remount,size=4G /run/archiso/cowspace
