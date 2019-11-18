@@ -172,6 +172,10 @@ Configure hostname:
 
     # echo "<hostname>" >> /etc/hostname
 
+Set root password:
+
+    passwd
+
 Add a user:
 
     useradd -m -G wheel jdoe
@@ -200,3 +204,70 @@ Build and install ZFS dkms modules and ZFS utils as our newly created user:
 Install and enable networkmanager and ssh:
 
     pacman -S networkmanager opennssh
+    systemctl enable NetworkManager.service
+    systemctl enable sshd.service
+
+### Configure for boot (UEFI only)
+
+Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
+
+    # vim /etc/mkinitcpio.conf
+    --------------------------
+    HOOKS=(base udev autodetect modconf keyboard keymap consolefont block encrypt zfs filesystems)
+
+Generate kernel image with updated hooks:
+
+    mkinitcpio -p linux
+
+Install bootloader:
+
+    bootctl --path=/boot install
+
+Configure bootloader:
+
+    # vim /boot/loader/loader.conf
+    ------------------------------
+    default arch
+    timeout 4
+    editor 0
+
+Create main boot entry (REPLACEME will be replaced in a later step with `sed`):
+
+    # vim /boot/loader/entries/arch.conf
+    ------------------------------------
+    title Arch Linux
+    linux /vmlinuz-linux
+    initrd /initramfs-linux.img
+    options cryptdevice=UUID=REPLACEME:cryptroot:allow-discards zfs=zroot/ROOT/default rw
+
+Create fallback boot entry:
+
+    # vim /boot/loader/entries/arch-fallback.conf
+    title Arch Linux Fallback
+    linux /vmlinuz-linux
+    initrd /initramfs-linux-fallback.img
+    options cryptdevice=UUID=REPLACEME:cryptroot:allow-discards zfs=zroot/ROOT/default rw
+
+Get UUID for /dev/sdx2 and write it to a file:
+
+    blkid /dev/sdx2 | awk -F "\"" '{print $2}' > /tmp/uuid
+
+Put UUID in our boot entries:
+
+    sed -i"" "s/REPLACEME/$(cat /tmp/uuid)/" /boot/loader/entries/*.conf
+
+Exit chroot environment:
+
+		exit
+
+Copy ZFS cache file into installed system:
+
+		cp /etc/zfs/zpool.cache /mnt/etc/zfs
+
+Unmount filesystems and reboot:
+
+		umount /mnt/boot
+		zpool export zroot
+		reboot
+
+Enjoy your new encrypted ZFS system!
