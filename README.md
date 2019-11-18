@@ -245,7 +245,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
 ### Create main boot entry:
 
-`REPLACEME` will be replaced in a later step with `sed`),
+`REPLACEME` will be replaced in a later step with `sed`,
 
     # vim /boot/loader/entries/arch.conf
     ------------------------------------
