@@ -64,8 +64,74 @@ As user `nonroot`:
 
     yay -S zfs-dkms zfs-utils
 
-After successful installation we can exit the `nonroot` user:
+After successful installation we can exit the `nonroot` user and load the zfs kernel module:
 
     exit
+    modprobe zfs
 
+Create the ZFS pool cache file:
 
+    > /etc/zfs/zpool.cache
+
+### Partitioning
+
+    parted /dev/sdx
+    (parted) mklabel gpt
+    (parted) mkpart ESP fat32 1MiB 513MiB
+    (parted) set 1 boot on
+    (parted) mkpart primary ext2 513MiB 99%
+
+### LUKS encryption
+
+    cryptsetup luksFormat --type luks2 -v -s 512 /dev/sdx2
+    cryptsetup open /dev/sdx2 cryptroot
+
+### Create zpool and zfs filesystems
+
+The zpool:
+
+    zpool create -o ashift=12 -o cachefile=/etc/zfs/zpool.cache zroot /dev/mapper/cryptroot
+
+The ZFS filesystems, ignore any errors regarding not being able to mount the filesystem:
+
+    zfs create -o mountpoint=none zroot/data
+    zfs create -o mountpoint=none zroot/ROOT
+    zfs create -o compression=lz4 -o mountpoint=/ zroot/ROOT/default
+    zfs create -o compression=lz4 -o mountpoint=/home zroot/data/home
+
+Unmount the filesystems:
+
+    zfs umount -a
+
+Just making sure the mountpoints are correct ( better safe than sorry ):
+
+    zfs set mountpoint=/ zroot/ROOT/default
+    zfs set mountpoint=/home zroot/data/home
+
+Set bootfs and some defaults:
+
+    zpool set bootfs=zroot zroot
+    zfs set compression=lz4 zroot
+    zfs set relatime=on zroot
+
+Create a swap device:
+
+    zfs create -V 4G -b 4096 -o logbias=throughput -o sync=always -o primarycache=metadata -o com.sun:auto-snapshot=false zroot/swap
+    mkswap -f /dev/zvol/zroot/swap
+
+Export and re-import the created zpool, it will be mounted under `/mnt`.
+
+    zpool export zroot
+    zpool import -R /mnt zroot
+
+### Install the base system
+
+Mount the `/boot/` filesystem in our installation:
+
+    mkdir /mnt/boot
+    mkfs.fat -F32 /dev/sdx1
+    mount /dev/sdx1 /mnt/boot
+
+Install the base system:
+
+    pacstrap -i /mnt base base-devel
