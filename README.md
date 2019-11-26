@@ -87,6 +87,7 @@ As user `nonroot`:
     (parted) mkpart ESP fat32 1MiB 513MiB
     (parted) set 1 boot on
     (parted) mkpart primary ext2 513MiB 99%
+    (parted) quit
 
 ## LUKS encryption
 
