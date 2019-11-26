@@ -64,7 +64,7 @@ You might need to change the URL used below. It should be the same kernel versio
 Still as user `nonroot`:
 
     wget https://archive.archlinux.org/packages/l/linux-headers/linux-headers-5.3.8.1-1-x86_64.pkg.tar.xz
-    sudo pacman -S linux-headers-5.3.8.1-1-x86_64.pkg.tar.xz
+    sudo pacman -U linux-headers-5.3.8.1-1-x86_64.pkg.tar.xz
 
 ## Install ZFS from AUR in install environment
 
