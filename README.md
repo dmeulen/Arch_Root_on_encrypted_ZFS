@@ -78,7 +78,7 @@ As user `nonroot`:
 
 ### Create the ZFS pool cache file:
 
-    > /etc/zfs/zpool.cache
+    touch /etc/zfs/zpool.cache
 
 ## Partitioning
 
