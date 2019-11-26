@@ -28,7 +28,6 @@ The `nonroot` user and sudo settings will not be present after the installation,
 During the install we will be using tools that refuse to run under the root user. So we'll need to create a non-root user that can execute commands as root ( a user with sudo powerz ).
 
     useradd -m -G wheel nonroot
-    passwd nonroot
 
 Configure sudo.
 
