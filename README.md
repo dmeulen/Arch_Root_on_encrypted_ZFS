@@ -116,7 +116,7 @@ Ignore any errors regarding not being able to mount the filesystem.
 Just making sure the mountpoints are correct ( better safe than sorry ):
 
     zfs set mountpoint=/ zroot/ROOT/default
-    zfs set mountpoint=/home zroot/data/home
+    zfs set mountpoint=legacy zroot/data/home
 
 ### Set bootfs and some defaults:
 
@@ -155,10 +155,15 @@ Our filesystems will be mounted under `/mnt`.
 
     genfstab -U -p /mnt | grep boot >> /mnt/etc/fstab
     echo "/dev/zvol/zroot/swap none swap discard 0 0" >> /mnt/etc/fstab
+    echo "zroot/data/home /home zfs rw,xattr,posixacl 0 0" >> /mnt/etc/fstab
 
 ### Chroot into our Arch installation
 
     arch-chroot /mnt /bin/bash
+
+### Mount home directory
+
+    mount /home
 
 ### Install our favorite editor:
 
@@ -269,6 +274,10 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 ### Put UUID in our boot entries:
 
     sed -i"" "s/REPLACEME/$(cat /tmp/uuid)/" /boot/loader/entries/*.conf
+
+### Unmount home directory
+
+    umount /home
 
 ### Exit chroot environment:
 
