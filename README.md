@@ -122,7 +122,7 @@ Just making sure the mountpoints are correct ( better safe than sorry ):
 
 ### Set bootfs and some defaults:
 
-    zpool set bootfs=zroot zroot
+    zpool set bootfs=zroot/encr/ROOT/default zroot
     zfs set compression=lz4 zroot
     zfs set relatime=on zroot
 
@@ -156,8 +156,8 @@ Our filesystems will be mounted under `/mnt`.
 ### Generate an fstab:
 
     genfstab -U -p /mnt | grep boot >> /mnt/etc/fstab
-    echo "/dev/zvol/zroot/swap none swap discard 0 0" >> /mnt/etc/fstab
-    echo "zroot/data/home /home zfs rw,xattr,posixacl 0 0" >> /mnt/etc/fstab
+    echo "/dev/zvol/zroot/encr/swap none swap discard 0 0" >> /mnt/etc/fstab
+    echo "zroot/encr/data/home /home zfs rw,xattr,posixacl 0 0" >> /mnt/etc/fstab
 
 ### Chroot into our Arch installation
 
@@ -259,7 +259,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
     title Arch Linux
     linux /vmlinuz-linux
     initrd /initramfs-linux.img
-    options zfs=zroot/ROOT/default rw
+    options zfs=bootfs rw
 
 ### Create fallback boot entry:
 
@@ -267,7 +267,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
     title Arch Linux Fallback
     linux /vmlinuz-linux
     initrd /initramfs-linux-fallback.img
-    options zfs=zroot/ROOT/default rw
+    options zfs=bootfs rw
 
 ### Unmount home directory
 
