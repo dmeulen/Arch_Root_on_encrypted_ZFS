@@ -1,4 +1,4 @@
-# Arch Linux - Root on ZFS on LUKS without archzfs
+# WIP: Arch Linux - Root on ZFS with native encryption enabled
 
 Several documents can be found on the Internet about how to install Arch linux with root on ZFS.
 Most of the documents use the archzfs repo to do the actual installation. This works, but after installation you will get into trouble at some point in time.
@@ -86,28 +86,30 @@ As user `nonroot`:
     (parted) mklabel gpt
     (parted) mkpart ESP fat32 1MiB 513MiB
     (parted) set 1 boot on
-    (parted) mkpart primary ext2 513MiB 99%
+    (parted) mkpart primary 2 100%
     (parted) quit
-
-## LUKS encryption
-
-    cryptsetup luksFormat --type luks2 -v -s 512 /dev/sdx2
-    cryptsetup open /dev/sdx2 cryptroot
 
 ## Create zpool and zfs filesystems
 
 ### Create our zpool:
 
-    zpool create -o ashift=12 -o cachefile=/etc/zfs/zpool.cache zroot /dev/mapper/cryptroot
+    zpool create -o ashift=12 \
+      -o cachefile=/etc/zfs/zpool.cache \
+      -O acltype=posixacl \
+      -O compression=lz4 \
+      -O relatime=on \
+      -O xattr=sa \
+      zroot /dev/sdx2
 
 ### The ZFS filesystems:
 
 Ignore any errors regarding not being able to mount the filesystem.
 
-    zfs create -o mountpoint=none zroot/data
-    zfs create -o mountpoint=none zroot/ROOT
-    zfs create -o compression=lz4 -o mountpoint=/ zroot/ROOT/default
-    zfs create -o compression=lz4 -o mountpoint=/home zroot/data/home
+    zfs create -o encryption=on -o keyformat=passphrase -o mountpoint=none zroot/encr
+    zfs create -o mountpoint=none zroot/encr/data
+    zfs create -o mountpoint=none zroot/encr/ROOT
+    zfs create -o compression=lz4 -o mountpoint=/ zroot/encr/ROOT/default
+    zfs create -o compression=lz4 -o mountpoint=legacy zroot/encr/data/home
 
 ### Unmount the filesystems:
 
@@ -115,8 +117,8 @@ Ignore any errors regarding not being able to mount the filesystem.
 
 Just making sure the mountpoints are correct ( better safe than sorry ):
 
-    zfs set mountpoint=/ zroot/ROOT/default
-    zfs set mountpoint=legacy zroot/data/home
+    zfs set mountpoint=/ zroot/encr/ROOT/default
+    zfs set mountpoint=legacy zroot/encr/data/home
 
 ### Set bootfs and some defaults:
 
@@ -126,15 +128,15 @@ Just making sure the mountpoints are correct ( better safe than sorry ):
 
 ### Create a swap device:
 
-    zfs create -V 4G -b 4096 -o logbias=throughput -o sync=always -o primarycache=metadata -o com.sun:auto-snapshot=false zroot/swap
-    mkswap -f /dev/zvol/zroot/swap
+    zfs create -V 4G -b 4096 -o logbias=throughput -o sync=always -o primarycache=metadata -o com.sun:auto-snapshot=false zroot/encr/swap
+    mkswap -f /dev/zvol/zroot/encr/swap
 
 ### Export and re-import the created zpool:
 
 Our filesystems will be mounted under `/mnt`.
 
     zpool export zroot
-    zpool import -R /mnt zroot
+    zpool import -R /mnt -l zroot
 
 ## Install the base system
 
@@ -230,7 +232,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
     # vim /etc/mkinitcpio.conf
     --------------------------
-    HOOKS=(base udev autodetect modconf keyboard keymap consolefont block encrypt zfs filesystems)
+    HOOKS=(base udev autodetect modconf keyboard keymap consolefont block zfs filesystems)
 
 ### Generate kernel image with updated hooks:
 
@@ -257,7 +259,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
     title Arch Linux
     linux /vmlinuz-linux
     initrd /initramfs-linux.img
-    options cryptdevice=UUID=REPLACEME:cryptroot:allow-discards zfs=zroot/ROOT/default rw
+    options zfs=zroot/ROOT/default rw
 
 ### Create fallback boot entry:
 
@@ -265,15 +267,7 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
     title Arch Linux Fallback
     linux /vmlinuz-linux
     initrd /initramfs-linux-fallback.img
-    options cryptdevice=UUID=REPLACEME:cryptroot:allow-discards zfs=zroot/ROOT/default rw
-
-### Get UUID for /dev/sdx2 and write it to a file:
-
-    blkid /dev/sdx2 | awk -F "\"" '{print $2}' > /tmp/uuid
-
-### Put UUID in our boot entries:
-
-    sed -i"" "s/REPLACEME/$(cat /tmp/uuid)/" /boot/loader/entries/*.conf
+    options zfs=zroot/ROOT/default rw
 
 ### Unmount home directory
 
