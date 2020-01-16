@@ -115,7 +115,9 @@ As user `nonroot`:
     (parted) mklabel gpt
     (parted) mkpart ESP fat32 1 513
     (parted) set 1 boot on
+    (parted) name 1 boot
     (parted) mkpart primary 513 100%
+    (parted) name 2 rootfs
     (parted) quit
 
 ## Partitioning ( BIOS only )
@@ -128,12 +130,14 @@ As user `nonroot`:
     (parted) set 2 boot on
     (parted) name 2 boot
     (parted) mkpart primary 500 100%
-    (parted) name 3 root
+    (parted) name 3 rootfs
     (parted) quit
 
 ## Create zpool and zfs filesystems
 
 ### Create our zpool:
+
+Remember to create the pool on the partition we named `rootfs`, 2nd partition for UEFI based systems, 3rd for BIOS. The following is an example for UEFI.
 
     zpool create -o ashift=12 \
       -o cachefile=/etc/zfs/zpool.cache \
