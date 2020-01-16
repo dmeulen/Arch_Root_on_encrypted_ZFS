@@ -149,13 +149,13 @@ Remember to create the pool on the partition we named `rootfs`, 2nd partition fo
 
 ### The ZFS filesystems:
 
-Ignore any errors regarding not being able to mount the filesystem.
+Ignore any errors regarding not being able to mount the filesystem. Compression and other settings will be inherited from the pool.
 
     zfs create -o encryption=on -o keyformat=passphrase -o mountpoint=none zroot/encr
     zfs create -o mountpoint=none zroot/encr/data
     zfs create -o mountpoint=none zroot/encr/ROOT
-    zfs create -o compression=lz4 -o mountpoint=/ zroot/encr/ROOT/default
-    zfs create -o compression=lz4 -o mountpoint=legacy zroot/encr/data/home
+    zfs create -o mountpoint=/ zroot/encr/ROOT/default
+    zfs create -o mountpoint=legacy zroot/encr/data/home
 
 ### Unmount the filesystems:
 
@@ -217,15 +217,15 @@ Our filesystems will be mounted under `/mnt`.
 
 ### Install our favorite editor:
 
-    pacman -S vim
+    pacman --noconfirm -S vim
 
 ### Set locale:
 
     # vim /etc/locale.gen
     --------------------
-    Uncomment en_US.UTF-8 UTF-8
+    en_US.UTF-8 UTF-8
 
-    # locale-gen
+    locale-gen
 
     # vim /etc/locale.conf
     ---------------------
@@ -237,9 +237,11 @@ Our filesystems will be mounted under `/mnt`.
 
 ### Configure hostname:
 
-    # hostnamectl set-hostname <hostname>
+    hostnamectl set-hostname <hostname>
 
-### Set root password:
+### Set root password
+
+Now you do use your super secret password!:
 
     passwd
 
@@ -258,8 +260,8 @@ Uncomment out following line:
 
 ### Build and install ZFS dkms modules and ZFS utils as our newly created user:
 
+    pacman --noconfirm -S linux linux-headers git
     su - jdoe
-    sudo pacman --noconfirm -S linux linux-headers git
     mkdir git
     cd git
     git clone https://aur.archlinux.org/yay.git
@@ -270,10 +272,9 @@ Uncomment out following line:
 
 ### Install and enable networkmanager and ssh:
 
-    pacman --noconfirm -S networkmanager opennssh
+    pacman --noconfirm -S networkmanager openssh
     systemctl enable NetworkManager.service
     systemctl enable sshd.service
-
 
 Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
@@ -330,7 +331,23 @@ Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
 ### Configure GRUB
 
-    
+    # vim /boot/grub/grub.cfg
+    -------------------------
+    set timeout=5
+    set default=0
+
+    menuentry "Arch Linux" {
+        search --no-floppy -l rootfs
+        linux /vmlinuz-linux zfs=zroot/ROOT/default rw
+        initrd /initramfs-linux.img
+    }
+    menuentry "Arch Linux Fallback" {
+        search --no-floppy -l rootfs
+        linux /vmlinuz-linux zfs=zroot/ROOT/default rw
+        initrd /initramfs-linux-fallback.img
+    }
+
+
 
 ### Unmount home directory
 
