@@ -105,10 +105,6 @@ As user `nonroot`:
     exit
     modprobe zfs
 
-### Create the ZFS pool cache file:
-
-    touch /etc/zfs/zpool.cache
-
 ## Partitioning ( UEFI only )
 
     parted /dev/sdX
@@ -140,7 +136,6 @@ As user `nonroot`:
 Remember to create the pool on the partition we named `rootfs`, 2nd partition for UEFI based systems, 3rd for BIOS. The following is an example for UEFI.
 
     zpool create -o ashift=12 \
-      -o cachefile=/etc/zfs/zpool.cache \
       -O acltype=posixacl \
       -O compression=lz4 \
       -O relatime=on \
@@ -176,6 +171,12 @@ Our filesystems will be mounted under `/mnt`.
 
     zpool export zroot
     zpool import -R /mnt -l zroot
+
+### Create zfs pool cache file
+
+    zpool set cachefile=/etc/zfs/zpool.cache
+    mkdir /mnt/etc/zfs
+    cp /etc/zfs/zpool.cache /mnt/etc/zfs/
 
 ## Install the base system
 
@@ -267,7 +268,7 @@ Uncomment out following line:
     git clone https://aur.archlinux.org/yay.git
     cd yay
     makepkg -si --noconfirm
-    yay --noconfirm -S zfs-dkms zfs-utils
+    yay --noconfirm -S zfs-dkms-git zfs-utils-git
     exit
 
 ### Install and enable networkmanager and ssh:
