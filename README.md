@@ -277,6 +277,11 @@ Uncomment out following line:
     yay --noconfirm -S zfs-dkms zfs-utils
     exit
 
+Problems importing keys, try this:
+
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027
+
 ### Install and enable networkmanager and ssh:
 
     pacman --noconfirm -S networkmanager openssh
