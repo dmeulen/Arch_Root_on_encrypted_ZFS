@@ -180,7 +180,7 @@ Our filesystems will be mounted under `/mnt`.
 
 ### Create zfs pool cache file
 
-    zpool set cachefile=/etc/zfs/zpool.cache
+    zpool set cachefile=/etc/zfs/zpool.cache zroot
     mkdir /mnt/etc/zfs
     cp /etc/zfs/zpool.cache /mnt/etc/zfs/
 
