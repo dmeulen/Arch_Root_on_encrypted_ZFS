@@ -290,7 +290,7 @@ Build yay and zfs:
     systemctl enable NetworkManager.service
     systemctl enable sshd.service
 
-    If you don't like networkmanager, feel free to use whatever makes you happy.
+If you don't like networkmanager, feel free to use whatever makes you happy.
 
 ### Generate kernel image with updated hooks:
 
