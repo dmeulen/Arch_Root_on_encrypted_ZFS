@@ -274,7 +274,7 @@ Uncomment out following line:
     git clone https://aur.archlinux.org/yay.git
     cd yay
     makepkg -si --noconfirm
-    yay --noconfirm -S zfs-dkms-git zfs-utils-git
+    yay --noconfirm -S zfs-dkms zfs-utils
     exit
 
 ### Install and enable networkmanager and ssh:
