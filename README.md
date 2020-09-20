@@ -74,7 +74,7 @@ Yay is an AUR package manager like `yaourt`, but actively developed.
 
 ### Install some requirements for building `yay` and ZFS.
 
-    pacman --noconfirm -Sy git base-devel python-setuptools
+    pacman --noconfirm -Sy git base-devel python-setuptools wget
 
 ### Build and install `yay`:
 
@@ -99,6 +99,12 @@ Still as user `nonroot`:
 As user `nonroot`:
 
     yay --noconfirm -S zfs-dkms zfs-utils
+
+If importing keys fails try this and re-run the above command:
+
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027
+
 
 ### After successful installation we can exit the `nonroot` user and load the zfs kernel module:
 
