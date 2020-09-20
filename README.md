@@ -267,6 +267,13 @@ Uncomment out following line:
 
 ### Build and install ZFS dkms modules and ZFS utils as our newly created user:
 
+If you had roblems importing keys in earlier steps, do this first:
+
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
+    gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027
+
+Build yay and zfs:
+
     pacman --noconfirm -S linux linux-headers git
     su - jdoe
     mkdir git
@@ -277,16 +284,13 @@ Uncomment out following line:
     yay --noconfirm -S zfs-dkms zfs-utils
     exit
 
-Problems importing keys, try this:
-
-    gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
-    gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027
-
 ### Install and enable networkmanager and ssh:
 
     pacman --noconfirm -S networkmanager openssh
     systemctl enable NetworkManager.service
     systemctl enable sshd.service
+
+    If you don't like networkmanager, feel free to use whatever makes you happy.
 
 ### Generate kernel image with updated hooks:
 
