@@ -322,8 +322,6 @@ Generate image:
 
 ### Create main boot entry:
 
-`REPLACEME` will be replaced in a later step with `sed`,
-
     # vim /boot/loader/entries/arch.conf
     ------------------------------------
     title Arch Linux
