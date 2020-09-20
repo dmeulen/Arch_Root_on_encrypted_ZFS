@@ -306,13 +306,15 @@ Generate image:
 
     mkinitcpio -p linux
 
-## Configure systemd-boot bootloader (UEFI only)
+## Configure bootloader
 
-### Install bootloader:
+### Configure systemd-boot bootloader (UEFI only)
+
+#### Install bootloader:
 
     bootctl --path=/boot install
 
-### Configure bootloader:
+#### Configure bootloader:
 
     # vim /boot/loader/loader.conf
     ------------------------------
@@ -320,7 +322,7 @@ Generate image:
     timeout 4
     editor 0
 
-### Create main boot entry:
+#### Create main boot entry:
 
     # vim /boot/loader/entries/arch.conf
     ------------------------------------
@@ -329,7 +331,7 @@ Generate image:
     initrd /initramfs-linux.img
     options zfs=bootfs rw
 
-### Create fallback boot entry:
+#### Create fallback boot entry:
 
     # vim /boot/loader/entries/arch-fallback.conf
     title Arch Linux Fallback
@@ -337,17 +339,17 @@ Generate image:
     initrd /initramfs-linux-fallback.img
     options zfs=bootfs rw
 
-## Configure and install the GRUB boot loader ( BIOS only )
+### Configure and install the GRUB boot loader ( BIOS only )
 
-### Install grub
+#### Install grub
 
     pacman --noconfirm -Sy grub
 
-### Install grub in MBR
+#### Install grub in MBR
 
     grub-install --target=i386-pc /dev/sdX
 
-### Configure GRUB
+#### Configure GRUB
 
     # vim /boot/grub/grub.cfg
     -------------------------
