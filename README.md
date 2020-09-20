@@ -283,13 +283,17 @@ Uncomment out following line:
     systemctl enable NetworkManager.service
     systemctl enable sshd.service
 
+### Generate kernel image with updated hooks:
+
+Replace contents of `/usr/lib/initcpio/hooks/zfs` with one that supports importing encrypted zpools: https://aur.archlinux.org/cgit/aur.git/plain/zfs-utils.initcpio.hook?h=zfs-utils-common
+
 Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
     # vim /etc/mkinitcpio.conf
     --------------------------
     HOOKS=(base udev autodetect modconf keyboard keymap consolefont block zfs filesystems)
 
-### Generate kernel image with updated hooks:
+Generate image:
 
     mkinitcpio -p linux
 
