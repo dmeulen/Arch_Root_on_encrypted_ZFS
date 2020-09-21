@@ -148,6 +148,8 @@ Remember to create the pool on the partition we named `rootfs`, 2nd partition fo
       -O xattr=sa \
       zroot /dev/sdX2
 
+This example uses a single disk, if you need another set up like mirroring, this would be the moment to set it up.
+
 ### The ZFS filesystems:
 
 Ignore any errors regarding not being able to mount the filesystem. Compression and other settings will be inherited from the pool.
