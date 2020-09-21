@@ -382,7 +382,7 @@ Generate image:
 
 ### Unmount home directory
 
-    umount /home
+    umount -l /home
 
 ### Exit chroot environment:
 
