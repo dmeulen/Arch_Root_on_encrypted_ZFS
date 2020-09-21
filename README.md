@@ -224,9 +224,9 @@ Our filesystems will be mounted under `/mnt`.
 
     mount /home
 
-### Install our favorite editor:
+### Install our favorite editor and sudo:
 
-    pacman --noconfirm -S vim
+    pacman --noconfirm -S vim sudo
 
 ### Set locale:
 
