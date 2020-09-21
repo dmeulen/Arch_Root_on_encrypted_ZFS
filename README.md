@@ -269,6 +269,10 @@ Uncomment out following line:
 
 ### Build and install ZFS dkms modules and ZFS utils as our newly created user:
 
+Install linux, linux-headers and git:
+
+    pacman --noconfirm -S linux linux-headers git
+
 Change user to newly created user:
 
     su - jdoe
@@ -280,8 +284,6 @@ If you had roblems importing keys in earlier steps, do this first:
 
 Build yay and zfs:
 
-    pacman --noconfirm -S linux linux-headers git
-    su - jdoe
     mkdir git
     cd git
     git clone https://aur.archlinux.org/yay.git
