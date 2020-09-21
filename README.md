@@ -304,6 +304,9 @@ If you don't like networkmanager, feel free to use whatever makes you happy.
 
 Replace contents of `/usr/lib/initcpio/hooks/zfs` with one that supports importing encrypted zpools: https://aur.archlinux.org/cgit/aur.git/plain/zfs-utils.initcpio.hook?h=zfs-utils-common
 
+    cp /usr/lib/initcpio/hooks/zfs /usr/lib/initcpio/hooks/zfs.org
+    curl -s https://aur.archlinux.org/cgit/aur.git/plain/zfs-utils.initcpio.hook?h=zfs-utils-common > /usr/lib/initcpio/hooks/zfs
+
 Find the HOOKS setting in `/etc/mkinitcpio.conf` and update mkinitcpio hooks:
 
     # vim /etc/mkinitcpio.conf
