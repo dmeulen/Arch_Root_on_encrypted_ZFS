@@ -269,6 +269,10 @@ Uncomment out following line:
 
 ### Build and install ZFS dkms modules and ZFS utils as our newly created user:
 
+Change user to newly created user:
+
+    su - jdoe
+
 If you had roblems importing keys in earlier steps, do this first:
 
     gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
