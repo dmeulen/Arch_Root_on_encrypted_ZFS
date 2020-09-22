@@ -9,7 +9,6 @@ get_all_install_info() {
   lsblk -d -l -o 'NAME,SIZE,TYPE' -p
   echo "Enter the NAME of the target disk:"
   read target_disk
-  clear
 
   echo "What root password would you like to use:"
   read -s root_pass
@@ -19,7 +18,6 @@ get_all_install_info() {
     echo "Passwords do not match..."
     exit 1
   fi
-  clear
 
   echo "What ZFS passphrase would you like to use:"
   read -s zfs_pass
@@ -33,7 +31,7 @@ get_all_install_info() {
     echo "ZFS passphrase should be more than 8 characters."
     exit 1
   fi
-  clear
+
   DST_DEV=${target_disk}
   echo "Continue with installation on \"$DST_DEV\"?"
   echo "This will destroy everything on that disk!"
@@ -191,7 +189,7 @@ _EOD
 
 stage2_packages() {
   cat <<_EOD
-pacman --noconfirm -Sy git sudo
+pacman --noconfirm -Sy linux linux-headers git sudo
 _EOD
 }
 
