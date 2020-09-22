@@ -2,7 +2,6 @@
 
 stage1="/tmp/stage1.sh"
 stage2="/tmp/stage2.sh"
-DST_DEV="/dev/vda"
 
 get_all_install_info() {
   clear
@@ -32,6 +31,9 @@ get_all_install_info() {
     echo "ZFS passphrase should be more than 8 characters."
     exit 1
   fi
+
+  echo "What hostname should I set:"
+  read my_hostname
 
   DST_DEV=${target_disk}
   echo "Continue with installation on \"$DST_DEV\"?"
@@ -190,13 +192,75 @@ _EOD
 
 stage2_packages() {
   cat <<_EOD
-pacman --noconfirm -Sy linux linux-headers git sudo
+pacman --noconfirm -Sy linux linux-headers git sudo vim openssh networkmanager
+_EOD
+}
+
+stage2_configure_system() {
+  cat <<_EOD
+echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+ln -sf /usr/share/zoneinfo/Europe/Amsterdam /etc/localtime
+hostnamectl set-hostname $my_hostname
+systemctl enable NetworkManager.service
+systemctl enable sshd.service
+_EOD
+}
+
+stage2_update_hooks() {
+  cat <<_EOD
+cp /usr/lib/initcpio/hooks/zfs /usr/lib/initcpio/hooks/zfs.org
+curl -s https://aur.archlinux.org/cgit/aur.git/plain/zfs-utils.initcpio.hook?h=zfs-utils-common > /usr/lib/initcpio/hooks/zfs
+sed -i 's/^HOOKS.*$/HOOKS=(base udev autodetect modconf keyboard keymap consolefont block zfs filesystems)/' /mnt/etc/mkinitcpio.conf
+mkinitcpio -p linux
+_EOD
+}
+
+stage2_bootloader() {
+  cat <<_EOD
+bootctl --path=/boot install
+
+cat <<EOF > /boot/loader/loader.conf
+default arch
+timeout 4
+editor 0
+EOF
+
+cat <<EOF > /boot/loader/entries/arch.conf
+title Arch Linux
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options zfs=bootfs rw
+EOF
+
+cat <<EOF > /boot/loader/entries/arch-fallback.conf
+title Arch Linux Fallback
+linux /vmlinuz-linux
+initrd /initramfs-linux-fallback.img
+options zfs=bootfs rw
+EOF
+
+_EOD
+}
+
+stage2_root_password() {
+  cat <<_EOD
+passwd
+_EOD
+}
+
+stage2_umount() {
+  cat <<_EOD
+umount -l /home
 _EOD
 }
 
 generate_stage1_install() {
   echo "$FUNCNAME"
   fn=${stage1}
+  echo "#!/bin/bash" > ${fn}
+  chmod 755 ${fn}
   setup_nonroot_user >> ${fn}
   add_gpg_keys >> ${fn}
   build_yay >> ${fn}
@@ -222,15 +286,27 @@ execute_stage1_install() {
 generate_stage2_install() {
   echo "$FUNCNAME"
   fn=${stage2}
+  echo "#!/bin/bash" > ${fn}
+  chmod 755 ${fn}
   stage2_packages >> ${fn}
   setup_nonroot_user >> ${fn}
   add_gpg_keys >> ${fn}
   build_yay >> ${fn}
   build_zfs >> ${fn}
+  stage2_update_hooks >> ${fn}
+  stage2_configure_system >> ${fn}
+  stage2_bootloader >> ${fn}
+  stage2_root_password >> ${fn}
+  stage2_umount >> ${fn}
 }
 
 execute_stage2_install() {
   echo "$FUNCNAME"
+  cp /tmp/stage2.sh /mnt/stage2.sh
+  arch-chroot /mnt /stage2.sh
+  cp /etc/zfs/zpool.cache /mnt/etc/zfs
+  umount /mnt/boot
+  zpool export zroot
 }
 
 resize_cowspace
@@ -240,3 +316,6 @@ get_all_install_info
 generate_stage1_install
 execute_stage1_install
 generate_stage2_install
+execute_stage2_install
+
+echo "Done! Reboot or do whatever you want to do if you know what to do but you probably know because you know you decided to use arch linux and this ugly script. :p"
