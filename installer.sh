@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -x -e
 
 stage1="/tmp/stage1.sh"
 stage2="/tmp/stage2.sh"
@@ -259,7 +259,7 @@ _EOD
 generate_stage1_install() {
   echo "$FUNCNAME"
   fn=${stage1}
-  echo "#!/bin/bash" > ${fn}
+  echo "#!/bin/bash -x -e" > ${fn}
   chmod 755 ${fn}
   setup_nonroot_user >> ${fn}
   add_gpg_keys >> ${fn}
@@ -280,13 +280,13 @@ generate_stage1_install() {
 
 execute_stage1_install() {
   echo "$FUNCNAME"
-  bash -x ${stage1}
+  bash -x -e ${stage1}
 }
 
 generate_stage2_install() {
   echo "$FUNCNAME"
   fn=${stage2}
-  echo "#!/bin/bash" > ${fn}
+  echo "#!/bin/bash -x -e" > ${fn}
   chmod 755 ${fn}
   stage2_packages >> ${fn}
   setup_nonroot_user >> ${fn}
