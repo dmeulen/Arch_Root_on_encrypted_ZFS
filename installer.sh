@@ -4,6 +4,51 @@ stage1="/tmp/stage1.sh"
 stage2="/tmp/stage2.sh"
 DST_DEV="/dev/vda"
 
+get_all_install_info() {
+  echo "I found the following disks: "
+  lsblk -d -l -o 'NAME,SIZE,TYPE' -p
+  echo "Enter the NAME of the target disk:"
+  read target_disk
+  clear
+
+  echo "What root password would you like to use:"
+  read -s root_pass
+  echo "Repeat that please:"
+  read -s root_pass1
+  if [[ x"$root_pass" != x"$root_pass1" ]]; then
+    echo "Passwords do not match..."
+    exit 1
+  fi
+  clear
+
+  echo "What ZFS passphrase would you like to use:"
+  read -s zfs_pass
+  echo "Repeat that please:"
+  read -s zfs_pass1
+  if [[ x"$zfs_pass" != x"$zfs_pass1" ]]; then
+    echo "Passwords do not match..."
+    exit 1
+  fi
+  if [[ "${#zfs_pass}" -lt 8 ]]; then
+    echo "ZFS passphrase should be more than 8 characters."
+    exit 1
+  fi
+  clear
+  DST_DEV=${target_disk}
+  echo "Continue with installation on \"$DST_DEV\"?"
+  echo "This will destroy everything on that disk!"
+  echo -en "Answer with \"YES\" to continue "
+  read yesno
+  if [[ x"${yesno}" != x"YES" ]]; then
+    echo "Bailing out..."
+    exit 1
+  fi
+}
+
+installer_packages() {
+  pacman --noconfirm -Sy git base-devel python-setuptools wget sudo dialog
+}
+
 resize_cowspace() {
   COWSIZE=$(awk '/MemTotal/ {print int($2/1024/2)}' /proc/meminfo)
 
@@ -37,9 +82,6 @@ _EOD
 }
 
 build_yay() {
-  cat <<_EOD
-pacman --noconfirm -Sy git base-devel python-setuptools wget sudo
-_EOD
   nonroot_exec 'git clone https://aur.archlinux.org/yay.git; cd yay; makepkg -si --noconfirm; cd -'
   nonroot_exec 'rm -rf ~/yay'
 }
@@ -93,7 +135,7 @@ _EOD
 
 create_zfs_datasets() {
   cat <<_EOD
-zfs create -o encryption=on -o keyformat=passphrase -o mountpoint=none zroot/encr
+echo $zfs_pass | zfs create -o encryption=on -o keyformat=passphrase -o keylocation=prompt -o mountpoint=none zroot/encr
 zfs create -o mountpoint=none zroot/encr/data
 zfs create -o mountpoint=none zroot/encr/ROOT
 zfs create -o mountpoint=/ zroot/encr/ROOT/default
@@ -184,6 +226,9 @@ generate_stage2_install() {
 execute_stage2_install() {
   echo "$FUNCNAME"
 }
+
+installer_packages
+get_all_install_info
 
 resize_cowspace
 generate_stage1_install
