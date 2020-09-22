@@ -5,6 +5,7 @@ stage2="/tmp/stage2.sh"
 DST_DEV="/dev/vda"
 
 get_all_install_info() {
+  clear
   echo "I found the following disks: "
   lsblk -d -l -o 'NAME,SIZE,TYPE' -p
   echo "Enter the NAME of the target disk:"
