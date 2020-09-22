@@ -189,6 +189,12 @@ echo "zroot/encr/data/home /home zfs rw,xattr,posixacl 0 0" >> /mnt/etc/fstab
 _EOD
 }
 
+stage2_packages() {
+  cat <<_EOD
+pacman --noconfirm -Sy git sudo
+_EOD
+}
+
 generate_stage1_install() {
   echo "$FUNCNAME"
   fn=${stage1}
@@ -217,6 +223,7 @@ execute_stage1_install() {
 generate_stage2_install() {
   echo "$FUNCNAME"
   fn=${stage2}
+  stage2_packages >> ${fn}
   setup_nonroot_user >> ${fn}
   add_gpg_keys >> ${fn}
   build_yay >> ${fn}
