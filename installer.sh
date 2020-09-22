@@ -171,6 +171,7 @@ generate_stage1_install() {
 
 execute_stage1_install() {
   echo "$FUNCNAME"
+  sh ${stage1}
 }
 
 generate_stage2_install() {
@@ -186,4 +187,7 @@ execute_stage2_install() {
   echo "$FUNCNAME"
 }
 
+resize_cowspace
 generate_stage1_install
+execute_stage1_install
+generate_stage2_install
