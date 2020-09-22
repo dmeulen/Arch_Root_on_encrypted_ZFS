@@ -5,9 +5,9 @@ stage2="/tmp/stage2.sh"
 DST_DEV="/dev/vda"
 
 resize_cowspace() {
-  COWSIZE=$(awk '/MemTotal/ {print int($2/1024/2)}')
+  COWSIZE=$(awk '/MemTotal/ {print int($2/1024/2)}' /proc/meminfo)
 
-  if [[ $COWSIZE < 2048 ]]; then
+  if [[ $COWSIZE < 1800 ]]; then
     echo "Not enough memory installed 4GB is the bare minimum, sorry."
     exit 1
   elif [[ $COWSIZE > 4096 ]]; then
@@ -45,10 +45,8 @@ _EOD
 }
 
 add_gpg_keys() {
-  cat <<_EOD
-gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B
-gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027
-_EOD
+  nonroot_exec 'gpg --keyserver pool.sks-keyservers.net  --recv-keys C33DF142657ED1F7C328A2960AB9E991C6AF658B'
+  nonroot_exec 'gpg --keyserver pool.sks-keyservers.net  --recv-keys 4F3BA9AB6D1F8D683DC2DFB56AD860EED4598027'
 }
 
 install_kernel_headers() {
@@ -171,7 +169,7 @@ generate_stage1_install() {
 
 execute_stage1_install() {
   echo "$FUNCNAME"
-  sh ${stage1}
+  bash -x ${stage1}
 }
 
 generate_stage2_install() {
