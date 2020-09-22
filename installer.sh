@@ -227,10 +227,10 @@ execute_stage2_install() {
   echo "$FUNCNAME"
 }
 
+resize_cowspace
 installer_packages
 get_all_install_info
 
-resize_cowspace
 generate_stage1_install
 execute_stage1_install
 generate_stage2_install
